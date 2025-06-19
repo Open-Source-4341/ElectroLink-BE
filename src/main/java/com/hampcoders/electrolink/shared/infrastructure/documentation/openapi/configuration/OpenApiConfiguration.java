@@ -1,4 +1,4 @@
-package com.hampcoders.electrolink.shared.infastructure.documentation.openapi.configuration;
+package com.hampcoders.electrolink.shared.infrastructure.documentation.openapi.configuration;
 
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.ExternalDocumentation;

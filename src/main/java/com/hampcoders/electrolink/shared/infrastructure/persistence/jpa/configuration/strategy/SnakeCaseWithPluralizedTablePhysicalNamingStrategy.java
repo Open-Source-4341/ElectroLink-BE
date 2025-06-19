@@ -1,4 +1,4 @@
-package com.hampcoders.electrolink.shared.infastructure.persistence.jpa.configuration.strategy;
+package com.hampcoders.electrolink.shared.infrastructure.persistence.jpa.configuration.strategy;
 
 import org.hibernate.boot.model.naming.Identifier;
 import org.hibernate.boot.model.naming.PhysicalNamingStrategy;
