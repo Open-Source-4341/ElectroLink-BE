@@ -1,12 +1,14 @@
 package com.hampcoders.electrolink.assets.domain.model.valueobjects;
 
-public record TechnicianId(Long technicianId) {
+import java.util.UUID;
+
+public record TechnicianId(UUID technicianId) {
     public TechnicianId {
-        if(technicianId < 0 ) {
+        if(technicianId == null ) {
             throw new IllegalArgumentException("Technician ID must be a positive number.");
         }
     }
     public TechnicianId() {
-        this(0L);
+        this(UUID.randomUUID());
     }
 }

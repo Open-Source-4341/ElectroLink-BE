@@ -9,7 +9,7 @@ import lombok.With;
 import com.hampcoders.electrolink.assets.domain.model.valueobjects.*;
 
 @Entity
-@Table(name = "property_status")
+@Table(name = "property_statuses")
 @With
 @Data
 @NoArgsConstructor
