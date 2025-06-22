@@ -15,6 +15,6 @@ public interface ComponentRepository extends JpaRepository<Component, ComponentI
     List<Component> findByComponentTypeId(ComponentTypeId typeId);
 
     boolean existsByName(String name);
-
+    boolean existsByComponentTypeId(ComponentTypeId componentTypeId);
     List<Component> findByIdIn(List<ComponentId> ids);
 }
