@@ -1,5 +1,7 @@
 package com.hampcoders.electrolink.assets.domain.model.aggregates;
 
+import com.hampcoders.electrolink.assets.domain.model.commands.CreatePropertyCommand;
+import com.hampcoders.electrolink.assets.domain.model.commands.UpdatePropertyCommand;
 import com.hampcoders.electrolink.assets.domain.model.entities.PropertyStatus;
 import com.hampcoders.electrolink.assets.domain.model.valueobjects.*;
 import jakarta.persistence.*;
@@ -38,22 +40,12 @@ public class Property {
     protected Property() {
     }
 
-    public Property(OwnerId ownerId, Address address, Region region, District district) {
-        this.ownerId = ownerId;
-        this.address = address;
-        this.region = region;
-        this.district = district;
+    public Property(CreatePropertyCommand command) {
+        this.ownerId = command.ownerId();
+        this.address = command.address();
+        this.region = command.region();
+        this.district = command.district();
         this.status = PropertyStatus.getDefaultPropertyStatus();
-        this.photo = null;
-    }
-
-    public Property(UUID id, OwnerId ownerId, Address address, Region region, District district, PropertyStatus status) {
-        this.id = id;
-        this.ownerId = ownerId;
-        this.address = address;
-        this.region = region;
-        this.district = district;
-        this.status = status;
         this.photo = null;
     }
 
@@ -63,6 +55,12 @@ public class Property {
             return;
         }
         this.photo = new PropertyPhoto(photoUrl);
+    }
+
+    public void update(UpdatePropertyCommand command) {
+        this.address = command.address();
+        this.region = command.region();
+        this.district = command.district();
     }
 
     public void updateAddress(Address newAddress) {
