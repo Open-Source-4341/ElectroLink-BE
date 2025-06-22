@@ -1,8 +1,10 @@
 package com.hampcoders.electrolink.assets.domain.model.valueobjects;
 
+import jakarta.persistence.Embeddable;
 import java.util.UUID;
 
-public record ComponentId(UUID componentId) {
+@Embeddable
+public record ComponentId(String componentId) {
 
     public ComponentId {
         if (componentId == null) {
@@ -11,10 +13,10 @@ public record ComponentId(UUID componentId) {
     }
 
     public ComponentId() {
-        this(UUID.randomUUID());
+        this(UUID.randomUUID().toString());
     }
 
     public static ComponentId newId() {
-        return new ComponentId(UUID.randomUUID());
+        return new ComponentId(UUID.randomUUID().toString());
     }
 }

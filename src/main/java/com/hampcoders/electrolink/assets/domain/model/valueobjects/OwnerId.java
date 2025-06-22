@@ -1,14 +1,22 @@
 package com.hampcoders.electrolink.assets.domain.model.valueobjects;
 
-public record OwnerId(long ownerId) {
+import jakarta.persistence.Embeddable;
+
+import java.util.UUID;
+
+@Embeddable
+public record OwnerId(UUID ownerId) {
     public OwnerId {
-        if (ownerId < 0) {
-            throw new IllegalArgumentException("Owner ID must be a positive number.");
+        if (ownerId == null) {
+            throw new IllegalArgumentException("Owner ID cannot be null");
         }
     }
 
     public OwnerId() {
-        this(0L);
+        this(UUID.randomUUID());
     }
 
+    public static OwnerId newId() {
+        return new OwnerId(UUID.randomUUID());
+    }
 }
