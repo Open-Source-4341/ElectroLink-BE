@@ -1,5 +1,6 @@
 package com.hampcoders.electrolink.assets.domain.model.aggregates;
 
+import com.hampcoders.electrolink.assets.domain.model.commands.CreateComponentCommand;
 import com.hampcoders.electrolink.assets.domain.model.valueobjects.ComponentId;
 import com.hampcoders.electrolink.assets.domain.model.valueobjects.ComponentTypeId;
 import com.hampcoders.electrolink.shared.domain.model.aggregates.AuditableAbstractAggregateRoot;
@@ -38,12 +39,12 @@ public class Component extends AuditableAbstractAggregateRoot<Component> {
         this.isActive = false;
     }
 
-    public Component(String name, String description, int componentTypeId) {
+    public Component(CreateComponentCommand command) {
         this();
         this.componentId = ComponentId.newId();
-        this.name = name;
-        this.description = description;
-        this.componentTypeId = new ComponentTypeId(componentTypeId);
+        this.name = command.name();
+        this.description = command.description();
+        this.componentTypeId = new ComponentTypeId(command.ComponentTypeId());
         this.isActive = true;
     }
     public void updateInfo(String name, String description) {
