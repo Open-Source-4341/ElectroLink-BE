@@ -1,9 +1,7 @@
 package com.hampcoders.electrolink.assets.domain.model.valueobjects;
 
-import jakarta.persistence.Embeddable;
 import java.util.UUID;
 
-@Embeddable
 public record ComponentId(UUID componentId) {
     public ComponentId {
         if (componentId == null) {
