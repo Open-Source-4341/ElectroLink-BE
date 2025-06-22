@@ -19,7 +19,6 @@ import java.util.UUID;
 @Embeddable
 public class StockItem {
 
-    @Getter
     @OneToMany(mappedBy="stockItems", cascade = CascadeType.ALL)
     private List<ComponentStock> stockItems;
 
