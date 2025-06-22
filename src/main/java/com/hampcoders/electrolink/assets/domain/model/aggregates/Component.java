@@ -8,6 +8,7 @@ import lombok.Getter;
 
 @Entity
 @Table(name = "components")
+@Getter
 public class Component extends AuditableAbstractAggregateRoot<Component> {
 
     @Embedded
