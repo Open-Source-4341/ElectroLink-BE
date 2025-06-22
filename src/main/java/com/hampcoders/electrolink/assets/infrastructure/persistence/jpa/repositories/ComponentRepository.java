@@ -12,9 +12,6 @@ import java.util.Optional;
 @Repository
 public interface ComponentRepository extends JpaRepository<Component, ComponentId> {
 
-    // CAMBIO 2: Este método es innecesario, JpaRepository ya lo provee.
-    // Optional<Component> findById(ComponentId id);
-
     List<Component> findByComponentTypeId(ComponentTypeId typeId);
 
     boolean existsByName(String name);
