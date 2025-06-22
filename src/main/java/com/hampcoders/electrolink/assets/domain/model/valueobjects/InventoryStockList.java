@@ -13,24 +13,22 @@ import lombok.ToString;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.UUID;
 
 @ToString
 @Embeddable
-public class StockItem {
+@Getter
+public class InventoryStockList {
 
-    @OneToMany(mappedBy="stockItems", cascade = CascadeType.ALL)
-    private List<ComponentStock> stockItems;
+    @OneToMany(mappedBy = "technicianInventory", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ComponentStock> items ;
 
 
-    public StockItem() {
-        this.stockItems = new ArrayList<>();
+    public InventoryStockList() {
+        this.items  = new ArrayList<>();
     }
 
-    public void addItem(TechnicianInventory technicianInventory, Component component, int quantityAvailable, int alertThreshold, Date lastUpdated) {
-        if (component != null) {
-            this.stockItems.add(new ComponentStock(technicianInventory,component,quantityAvailable, alertThreshold,lastUpdated));
-        }
+    public void addItem(TechnicianInventory inventory, Component component, int quantity, int threshold) {
+        this.items.add(new ComponentStock(inventory, component, quantity, threshold, new Date()));
     }
 
 }

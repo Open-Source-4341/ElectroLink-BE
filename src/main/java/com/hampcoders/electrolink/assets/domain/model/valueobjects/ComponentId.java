@@ -4,8 +4,7 @@ import jakarta.persistence.Embeddable;
 import java.util.UUID;
 
 @Embeddable
-public record ComponentId(String componentId) {
-
+public record ComponentId(UUID componentId) {
     public ComponentId {
         if (componentId == null) {
             throw new IllegalArgumentException("Component ID cannot be null");
@@ -13,10 +12,10 @@ public record ComponentId(String componentId) {
     }
 
     public ComponentId() {
-        this(UUID.randomUUID().toString());
+        this(UUID.randomUUID());
     }
 
     public static ComponentId newId() {
-        return new ComponentId(UUID.randomUUID().toString());
+        return new ComponentId(UUID.randomUUID());
     }
 }

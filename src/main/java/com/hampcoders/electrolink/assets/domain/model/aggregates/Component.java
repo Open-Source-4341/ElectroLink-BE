@@ -11,11 +11,9 @@ import lombok.Getter;
 public class Component extends AuditableAbstractAggregateRoot<Component> {
 
     @Embedded
-    @AttributeOverrides( {
-            @AttributeOverride(name = "componentId", column = @Column(name = "component_id", length = 5, nullable = false))
+    @AttributeOverrides( {@AttributeOverride(name = "componentId", column = @Column(name = "component_id", nullable = false))
     })
     private ComponentId componentId;
-
 
     @Getter
     @Column(name="name", length = 100, nullable = false)

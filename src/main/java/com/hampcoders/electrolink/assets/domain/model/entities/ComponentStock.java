@@ -6,12 +6,14 @@ import com.hampcoders.electrolink.assets.domain.model.valueobjects.ComponentId;
 import com.hampcoders.electrolink.shared.domain.model.entities.AuditableModel;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
+import lombok.Getter;
 
 import java.util.Date;
 import java.util.UUID;
 
 @Entity
 @Table(name="component_stocks")
+@Getter
 public class ComponentStock extends AuditableModel {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
