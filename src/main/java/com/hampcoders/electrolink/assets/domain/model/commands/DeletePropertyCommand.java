@@ -1,4 +1,6 @@
 package com.hampcoders.electrolink.assets.domain.model.commands;
 
-public record DeletePropertyCommand() {
+import java.util.UUID;
+
+public record DeletePropertyCommand(UUID propertyId) {
 }

@@ -1,4 +1,6 @@
 package com.hampcoders.electrolink.assets.domain.model.commands;
 
-public record DeleteComponentTypeCommand(int componentTypeId) {
+import com.hampcoders.electrolink.assets.domain.model.valueobjects.ComponentTypeId;
+
+public record DeleteComponentTypeCommand(ComponentTypeId componentTypeId) {
 }
