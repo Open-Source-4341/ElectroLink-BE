@@ -11,6 +11,12 @@ import com.hampcoders.electrolink.assets.interfaces.rest.resource.ComponentTypeR
 import com.hampcoders.electrolink.assets.interfaces.rest.resource.CreateComponentTypeResource;
 import com.hampcoders.electrolink.assets.interfaces.rest.transform.ComponentTypeResourceFromEntityAssembler;
 import com.hampcoders.electrolink.assets.interfaces.rest.transform.CreateComponentTypeCommandFromResourceAssembler;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -19,6 +25,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+@Tag(name = "Component Types", description = "API for managing component types")
 @RestController
 @RequestMapping(value = "/api/v1/component-types", produces = MediaType.APPLICATION_JSON_VALUE)
 public class ComponentTypeController {
@@ -31,45 +38,11 @@ public class ComponentTypeController {
         this.componentTypeQueryService = componentTypeQueryService;
     }
 
-    /**
-     * Endpoint para crear un nuevo tipo de componente.
-     * Sigue el patrón POST-then-GET.
-     * @param resource Los datos para crear el tipo de componente.
-     * @return El recurso del tipo de componente recién creado con el estado 201 (Created).
-     */
-    @PostMapping
-    public ResponseEntity<ComponentTypeResource> createComponentType(@RequestBody @Valid CreateComponentTypeResource resource) {
-        // 1. Traducir el Resource (DTO de la API) a un Command (Orden para el Dominio)
-        var createComponentTypeCommand = CreateComponentTypeCommandFromResourceAssembler.toCommandFromResource(resource);
-
-        // 2. Enviar el comando al servicio para su ejecución y obtener el ID
-        var componentTypeId = componentTypeCommandService.handle(createComponentTypeCommand);
-
-        // 3. Si el ID es nulo, algo salió mal
-        if (componentTypeId == null) {
-            return ResponseEntity.badRequest().build();
-        }
-
-        // 4. Usar el nuevo ID para consultar la entidad completa
-        var getComponentTypeByIdQuery = new GetComponentTypeByIdQuery(componentTypeId);
-        var componentType = componentTypeQueryService.handle(getComponentTypeByIdQuery);
-
-        // 5. Si no se encuentra, es un error inesperado
-        if (componentType.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
-
-        // 6. Traducir la Entidad a un Resource para la respuesta
-        var componentTypeResource = ComponentTypeResourceFromEntityAssembler.toResourceFromEntity(componentType.get());
-
-        // 7. Devolver la respuesta con el estado 201 CREATED
-        return new ResponseEntity<>(componentTypeResource, HttpStatus.CREATED);
-    }
-
-    /**
-     * Endpoint para obtener todos los tipos de componente.
-     * @return Una lista de todos los recursos de tipo de componente con el estado 200 (OK).
-     */
+    @Operation(summary = "Get all component types", description = "Retrieve a list of all available component types.")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Successfully retrieved the list of component types",
+            content = @Content(mediaType = "application/json", schema = @Schema(implementation = ComponentTypeResource.class)))
+    })
     @GetMapping
     public ResponseEntity<List<ComponentTypeResource>> getAllComponentTypes() {
         var getAllComponentTypesQuery = new GetAllComponentTypesQuery();
@@ -81,4 +54,35 @@ public class ComponentTypeController {
 
         return new ResponseEntity<>(componentTypeResources, HttpStatus.OK);
     }
+
+    @Operation(summary = "Create a new component type", description = "Create a new component type and return its details.")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "201", description = "Successfully created the component type",
+            content = @Content(mediaType = "application/json", schema = @Schema(implementation = ComponentTypeResource.class))),
+        @ApiResponse(responseCode = "400", description = "Invalid input data"),
+        @ApiResponse(responseCode = "500", description = "Internal server error")
+    })
+    @PostMapping
+    public ResponseEntity<ComponentTypeResource> createComponentType(@RequestBody @Valid CreateComponentTypeResource resource) {
+        var createComponentTypeCommand = CreateComponentTypeCommandFromResourceAssembler.toCommandFromResource(resource);
+
+        var componentTypeId = componentTypeCommandService.handle(createComponentTypeCommand);
+
+        if (componentTypeId == null) {
+            return ResponseEntity.badRequest().build();
+        }
+
+        var getComponentTypeByIdQuery = new GetComponentTypeByIdQuery(componentTypeId);
+        var componentType = componentTypeQueryService.handle(getComponentTypeByIdQuery);
+
+        if (componentType.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+
+        var componentTypeResource = ComponentTypeResourceFromEntityAssembler.toResourceFromEntity(componentType.get());
+
+        return new ResponseEntity<>(componentTypeResource, HttpStatus.CREATED);
+    }
+
+
 }

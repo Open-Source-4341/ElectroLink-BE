@@ -17,4 +17,5 @@ public interface TechnicianInventoryCommandService {
     UUID handle(CreateTechnicianInventoryCommand command);
     Optional<TechnicianInventory> handle(AddComponentStockCommand command);
     Optional<TechnicianInventory> handle(UpdateComponentStockCommand command);
+    Boolean handle(DeleteComponentStockCommand command);
 }

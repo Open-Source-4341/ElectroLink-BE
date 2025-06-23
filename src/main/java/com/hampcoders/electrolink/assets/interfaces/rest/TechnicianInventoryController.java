@@ -1,5 +1,9 @@
 package com.hampcoders.electrolink.assets.interfaces.rest;
 
+import com.hampcoders.electrolink.assets.domain.model.commands.DeleteComponentStockCommand;
+import com.hampcoders.electrolink.assets.domain.model.queries.GetInventoriesWithLowStockQuery;
+import com.hampcoders.electrolink.assets.domain.model.queries.GetStockItemDetailsQuery;
+import com.hampcoders.electrolink.assets.domain.model.valueobjects.ComponentId;
 import com.hampcoders.electrolink.assets.domain.model.valueobjects.TechnicianId;
 import com.hampcoders.electrolink.assets.domain.model.queries.GetInventoryByTechnicianIdQuery;
 import com.hampcoders.electrolink.assets.domain.services.TechnicianInventoryCommandService; // Necesitarás crear este servicio
@@ -12,6 +16,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -24,6 +29,44 @@ public class TechnicianInventoryController {
     public TechnicianInventoryController(TechnicianInventoryCommandService inventoryCommandService, TechnicianInventoryQueryService inventoryQueryService) {
         this.inventoryCommandService = inventoryCommandService;
         this.inventoryQueryService = inventoryQueryService;
+    }
+    @GetMapping("/low-stock")
+    public ResponseEntity<List<TechnicianInventoryResource>> getInventoriesWithLowStock() {
+        var query = new GetInventoriesWithLowStockQuery(5);
+        var inventories = inventoryQueryService.handle(query);
+
+        var resources = inventories.stream()
+                .map(TechnicianInventoryResourceFromEntityAssembler::toResourceFromEntity)
+                .toList();
+
+        return new ResponseEntity<>(resources, HttpStatus.OK);
+    }
+
+    @GetMapping("/technician/{technicianId}/stocks/{componentId}")
+    public ResponseEntity<ComponentStockResource> getStockItemDetails(
+            @PathVariable UUID technicianId,
+            @PathVariable UUID componentId) {
+
+        var query = new GetStockItemDetailsQuery(
+                new TechnicianId(technicianId),
+                new ComponentId(componentId)
+        );
+        var stockItem = inventoryQueryService.handle(query);
+
+        return stockItem.map(item -> new ResponseEntity<>(
+                        ComponentStockResourceFromEntityAssembler.toResourceFromEntity(item),
+                        HttpStatus.OK))
+                .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
+    }
+
+    @GetMapping("/technician/{technicianId}")
+    public ResponseEntity<TechnicianInventoryResource> getInventoryByTechnicianId(@PathVariable UUID technicianId) {
+        var query = new GetInventoryByTechnicianIdQuery(new TechnicianId(technicianId));
+        var inventory = inventoryQueryService.handle(query);
+
+        return inventory.map(inv -> new ResponseEntity<>(
+                        TechnicianInventoryResourceFromEntityAssembler.toResourceFromEntity(inv), HttpStatus.OK))
+                .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 
     @PostMapping
@@ -46,16 +89,6 @@ public class TechnicianInventoryController {
         return new ResponseEntity<>(inventoryResource, HttpStatus.CREATED);
     }
 
-    @GetMapping("/technician/{technicianId}")
-    // CORREGIDO: technicianId ahora es UUID
-    public ResponseEntity<TechnicianInventoryResource> getInventoryByTechnicianId(@PathVariable UUID technicianId) {
-        var query = new GetInventoryByTechnicianIdQuery(new TechnicianId(technicianId));
-        var inventory = inventoryQueryService.handle(query);
-
-        return inventory.map(inv -> new ResponseEntity<>(
-                        TechnicianInventoryResourceFromEntityAssembler.toResourceFromEntity(inv), HttpStatus.OK))
-                .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
-    }
 
     @PostMapping("/technician/{technicianId}/stocks")
     public ResponseEntity<TechnicianInventoryResource> addComponentToStock(
@@ -63,7 +96,7 @@ public class TechnicianInventoryController {
             @RequestBody @Valid AddComponentStockResource resource) {
 
         var command = AddComponentStockCommandFromResourceAssembler.toCommandFromResource(technicianId, resource);
-        var updatedInventory = inventoryCommandService.handle(command); // Asume que este método devuelve el inventario actualizado
+        var updatedInventory = inventoryCommandService.handle(command);
 
         return updatedInventory.map(inv -> new ResponseEntity<>(
                         TechnicianInventoryResourceFromEntityAssembler.toResourceFromEntity(inv), HttpStatus.OK))
@@ -71,7 +104,6 @@ public class TechnicianInventoryController {
     }
 
     @PutMapping("/technician/{technicianId}/stocks/{componentId}")
-    // CORREGIDO: technicianId ahora es UUID
     public ResponseEntity<TechnicianInventoryResource> updateComponentStock(
             @PathVariable UUID technicianId,
             @PathVariable UUID componentId,
@@ -84,4 +116,19 @@ public class TechnicianInventoryController {
                         TechnicianInventoryResourceFromEntityAssembler.toResourceFromEntity(inv), HttpStatus.OK))
                 .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
+
+    @DeleteMapping("/technician/{technicianId}/stocks/{componentId}")
+    public ResponseEntity<Void> deleteComponentFromInventory(
+            @PathVariable UUID technicianId,
+            @PathVariable UUID componentId) {
+
+        var command = new DeleteComponentStockCommand(technicianId, componentId);
+        boolean result = inventoryCommandService.handle(command);
+
+        return result ?
+                ResponseEntity.noContent().build() :
+                ResponseEntity.notFound().build();
+    }
+
+
 }

@@ -3,6 +3,7 @@ package com.hampcoders.electrolink.assets.application.internal.commandservices;
 import com.hampcoders.electrolink.assets.domain.model.aggregates.TechnicianInventory;
 import com.hampcoders.electrolink.assets.domain.model.commands.AddComponentStockCommand;
 import com.hampcoders.electrolink.assets.domain.model.commands.CreateTechnicianInventoryCommand;
+import com.hampcoders.electrolink.assets.domain.model.commands.DeleteComponentStockCommand;
 import com.hampcoders.electrolink.assets.domain.model.commands.UpdateComponentStockCommand;
 import com.hampcoders.electrolink.assets.domain.model.entities.ComponentStock;
 import com.hampcoders.electrolink.assets.domain.model.valueobjects.TechnicianId;
@@ -39,7 +40,6 @@ public class TechnicianInventoryCommandServiceImpl implements TechnicianInventor
 
     @Override
     public Optional<TechnicianInventory> handle(AddComponentStockCommand command) {
-        // CORREGIDO: Pasamos el UUID del comando directamente al método del repositorio.
         var inventory = technicianInventoryRepository.findByTechnicianId(command.technicianId())
                 .orElseThrow(() -> new EntityNotFoundException("TechnicianInventory not found for technician ID: " + command.technicianId()));
 
@@ -59,7 +59,6 @@ public class TechnicianInventoryCommandServiceImpl implements TechnicianInventor
         TechnicianInventory inventory = technicianInventoryRepository.findByTechnicianId(technicianId)
                 .orElseThrow(() -> new EntityNotFoundException("TechnicianInventory not found for technician ID: " + technicianId.toString()));
 
-        // Busca el componente dentro del inventario
         Optional<ComponentStock> stockOpt = inventory.getComponentStocks().stream()
                 .filter(stock -> stock.getComponent().getComponentUid().equals(command.componentId()))
                 .findFirst();
@@ -74,5 +73,19 @@ public class TechnicianInventoryCommandServiceImpl implements TechnicianInventor
 
         technicianInventoryRepository.save(inventory);
         return Optional.of(inventory);
+    }
+
+    @Override
+    public Boolean handle(DeleteComponentStockCommand command) {
+        UUID technicianId = new TechnicianId(command.technicianId()).technicianId();
+        return technicianInventoryRepository.findByTechnicianId(technicianId)
+                .map(inventory -> {
+                    boolean removed = inventory.removeStockItem(command);
+                    if (removed) {
+                        technicianInventoryRepository.save(inventory);
+                    }
+                    return removed;
+                })
+                .orElse(false);
     }
 }
