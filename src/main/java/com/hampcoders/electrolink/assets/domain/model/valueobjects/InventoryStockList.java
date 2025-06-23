@@ -6,6 +6,7 @@ import com.hampcoders.electrolink.assets.domain.model.aggregates.TechnicianInven
 import com.hampcoders.electrolink.assets.domain.model.entities.ComponentStock;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Embeddable;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.OneToMany;
 import lombok.Getter;
 import lombok.ToString;
@@ -19,7 +20,7 @@ import java.util.List;
 @Getter
 public class InventoryStockList {
 
-    @OneToMany(mappedBy = "technicianInventory", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(fetch = FetchType.EAGER, mappedBy = "technicianInventory", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ComponentStock> items ;
 
 

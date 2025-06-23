@@ -29,8 +29,8 @@ public class ComponentTypeCommandServiceImpl implements ComponentTypeCommandServ
             throw new IllegalStateException("Component type with the same name already exists");
         }
         var componentType = new ComponentType(command);
-        componentTypeRepository.save(componentType);
-        return componentType.getComponentTypeId();
+        var savedComponentType = componentTypeRepository.save(componentType);
+        return new ComponentTypeId(savedComponentType.getId());
     }
 
     @Override

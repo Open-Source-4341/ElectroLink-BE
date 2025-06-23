@@ -21,7 +21,7 @@ public class ComponentTypeQueryServiceImpl implements ComponentTypeQueryService 
 
     @Override
     public Optional<ComponentType> handle(GetComponentTypeByIdQuery query) {
-        return componentTypeRepository.findById(query.componentTypeId());
+        return componentTypeRepository.findById(query.componentTypeId().id());
     }
 
     @Override

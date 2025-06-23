@@ -15,11 +15,13 @@ import java.util.UUID;
 public interface TechnicianInventoryRepository extends JpaRepository<TechnicianInventory, UUID> {
 
     @Query("SELECT ti FROM TechnicianInventory ti LEFT JOIN FETCH ti.stockList.items WHERE ti.technicianId = :technicianId")
-    Optional<TechnicianInventory> findByTechnicianIdWithStocks(@Param("technicianId") TechnicianId technicianId);
+    Optional<TechnicianInventory> findByTechnicianIdWithStocks(@Param("technicianId") UUID technicianId);
 
-    Optional<TechnicianInventory> findByTechnicianId(TechnicianId technicianId);
+    Optional<TechnicianInventory> findByTechnicianId(UUID technicianId);
 
     @Query("SELECT DISTINCT i FROM TechnicianInventory i JOIN i.stockList.items s WHERE s.quantityAvailable < :threshold")
     List<TechnicianInventory> findInventoriesWithLowStock(@Param("threshold") int threshold);
+
+    boolean existsByTechnicianId(UUID technicianId);
 }
 

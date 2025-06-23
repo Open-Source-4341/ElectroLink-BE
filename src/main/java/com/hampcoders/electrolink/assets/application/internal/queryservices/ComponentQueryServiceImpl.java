@@ -23,7 +23,7 @@ public class ComponentQueryServiceImpl implements ComponentQueryService {
 
     @Override
     public Optional<Component> handle(GetComponentByIdQuery query) {
-        return componentRepository.findById(query.componentId());
+        return componentRepository.findById(query.componentId().componentId());
     }
 
     @Override
@@ -38,6 +38,6 @@ public class ComponentQueryServiceImpl implements ComponentQueryService {
 
     @Override
     public List<Component> handle(GetComponentsByIdsQuery query) {
-        return componentRepository.findByIdIn(query.ids());
+        return componentRepository.findByComponentUidIn(query.ids());
     }
 }

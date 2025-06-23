@@ -2,5 +2,7 @@ package com.hampcoders.electrolink.assets.domain.model.commands;
 
 import com.hampcoders.electrolink.assets.domain.model.valueobjects.ComponentId;
 
-public record UpdateComponentCommand(ComponentId componentId, String name, String description, int componentTypeId, Boolean isActive) {
+import java.util.UUID;
+
+public record UpdateComponentCommand(UUID componentId, String name, String description, Long componentTypeId, Boolean isActive) {
 }

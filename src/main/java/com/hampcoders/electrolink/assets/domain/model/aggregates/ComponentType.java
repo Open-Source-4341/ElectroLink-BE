@@ -4,10 +4,7 @@ import com.hampcoders.electrolink.assets.domain.model.commands.CreateComponentTy
 import com.hampcoders.electrolink.assets.domain.model.commands.UpdateComponentTypeCommand;
 import com.hampcoders.electrolink.assets.domain.model.valueobjects.ComponentTypeId;
 import com.hampcoders.electrolink.shared.domain.model.aggregates.AuditableAbstractAggregateRoot;
-import jakarta.persistence.Column;
-import jakarta.persistence.Embedded;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.Getter;
 
 @Entity
@@ -15,10 +12,13 @@ import lombok.Getter;
 @Getter
 public class ComponentType extends AuditableAbstractAggregateRoot<ComponentType> {
 
-    @Embedded
-    private ComponentTypeId componentTypeId;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
     @Column(name = "name", nullable = false)
     private String name;
+
     @Column(name = "description")
     private String description;
 
@@ -28,9 +28,8 @@ public class ComponentType extends AuditableAbstractAggregateRoot<ComponentType>
 
     public ComponentType(CreateComponentTypeCommand command){
         this();
-        this.componentTypeId = new ComponentTypeId();
-        this.name = name;
-        this.description = description;
+        this.name = command.name();
+        this.description = command.description();
     }
 
     public void update(String name, String description) {

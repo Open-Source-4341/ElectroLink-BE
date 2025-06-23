@@ -17,6 +17,7 @@ import java.util.UUID;
 public class ComponentStock extends AuditableModel {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
+    @Column(name = "component_stock_uid", nullable = false, updatable = false)
     private UUID id;
 
     @NotNull
@@ -26,7 +27,7 @@ public class ComponentStock extends AuditableModel {
 
     @NotNull
     @ManyToOne
-    @JoinColumn(name = "component_id")
+    @JoinColumn(name = "component_id", nullable = false)
     private Component component;
 
     private int quantityAvailable;

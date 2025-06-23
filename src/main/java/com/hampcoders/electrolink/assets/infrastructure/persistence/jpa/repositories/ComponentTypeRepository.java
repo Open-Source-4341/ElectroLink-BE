@@ -9,7 +9,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Repository
-public interface ComponentTypeRepository extends JpaRepository<ComponentType, ComponentTypeId> {
+public interface ComponentTypeRepository extends JpaRepository<ComponentType, Long> {
 
     boolean existsByName(String name);
 }

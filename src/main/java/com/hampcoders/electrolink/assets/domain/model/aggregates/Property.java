@@ -25,14 +25,20 @@ public class Property {
     private Address address;
 
     @Embedded
+    @AttributeOverrides({
+            @AttributeOverride(name = "name", column = @Column(name = "region_name"))
+    })
     private Region region;
 
     @Embedded
+    @AttributeOverrides({
+            @AttributeOverride(name = "name", column = @Column(name = "district_name"))
+    })
     private District district;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    /*@ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "status_id", nullable = false)
-    private PropertyStatus status;
+    private PropertyStatus status;*/
 
     @Embedded
     private PropertyPhoto photo;
@@ -45,7 +51,7 @@ public class Property {
         this.address = command.address();
         this.region = command.region();
         this.district = command.district();
-        this.status = PropertyStatus.getDefaultPropertyStatus();
+        //this.status = PropertyStatus.getDefaultPropertyStatus();
         this.photo = null;
     }
 
@@ -63,7 +69,7 @@ public class Property {
         this.district = command.district();
     }
 
-    public void updateAddress(Address newAddress) {
+    /*public void updateAddress(Address newAddress) {
         if (this.status.getName() == PropertyStatuses.INACTIVE) {
             throw new IllegalStateException("Cannot update the address of an inactive property.");
         }
@@ -75,7 +81,7 @@ public class Property {
             return;
         }
         this.status = PropertyStatus.toPropertyStatusFromName("INACTIVE");
-    }
+    }*/
 
 
 }

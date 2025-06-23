@@ -26,8 +26,8 @@ public class ComponentCommandServiceImpl implements ComponentCommandService {
             throw new IllegalStateException("Component with the same name already exists");
         }
         var component = new Component(command);
-        componentRepository.save(component);
-        return component.getComponentId();
+        var savedComponent = componentRepository.save(component);
+        return new ComponentId(savedComponent.getComponentUid());
     }
 
     @Override

@@ -5,7 +5,6 @@ import com.hampcoders.electrolink.assets.domain.model.commands.DeleteComponentSt
 import com.hampcoders.electrolink.assets.domain.model.commands.UpdateComponentStockCommand;
 import com.hampcoders.electrolink.assets.domain.model.entities.ComponentStock;
 import com.hampcoders.electrolink.assets.domain.model.valueobjects.InventoryStockList;
-import com.hampcoders.electrolink.assets.domain.model.valueobjects.TechnicianId;
 import jakarta.persistence.*;
 import lombok.Getter;
 
@@ -22,8 +21,8 @@ public class TechnicianInventory {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    @Embedded
-    private TechnicianId technicianId;
+    @Column(name = "technician_id", nullable = false)
+    private UUID technicianId;
 
     @Embedded
     private final InventoryStockList stockList;
@@ -32,7 +31,7 @@ public class TechnicianInventory {
         this.stockList = new InventoryStockList();
     }
 
-    public TechnicianInventory(TechnicianId technicianId) {
+    public TechnicianInventory(UUID technicianId) {
         this();
         this.technicianId = technicianId;
     }
@@ -50,7 +49,7 @@ public class TechnicianInventory {
     }
     public boolean updateStockItem(UpdateComponentStockCommand command) {
         Optional<ComponentStock> stockToUpdate = this.stockList.getItems().stream()
-                .filter(stock -> stock.getComponent().getComponentId().equals(command.componentId()))
+                .filter(stock -> stock.getComponent().getComponentUid().equals(command.componentId()))
                 .findFirst();
 
         if (stockToUpdate.isEmpty()) {
@@ -62,10 +61,10 @@ public class TechnicianInventory {
         stock.updateAlertThreshold(command.newAlertThreshold());
         stock.updateLastUpdated(new Date());
 
-        return true;
+        return false;
     }
 
     public boolean removeStockItem(DeleteComponentStockCommand command) {
-        return this.stockList.getItems().removeIf(stock -> stock.getComponent().getComponentId().equals(command.componentId()));
+        return this.stockList.getItems().removeIf(stock -> stock.getComponent().getComponentUid().equals(command.componentId()));
     }
 }

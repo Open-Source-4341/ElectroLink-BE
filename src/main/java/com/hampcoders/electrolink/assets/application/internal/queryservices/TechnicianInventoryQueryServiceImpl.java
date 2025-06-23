@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 public class TechnicianInventoryQueryServiceImpl implements TechnicianInventoryQueryService {
@@ -27,7 +28,7 @@ public class TechnicianInventoryQueryServiceImpl implements TechnicianInventoryQ
 
     @Override
     public Optional<TechnicianInventory> handle(GetInventoryByTechnicianIdQuery query) {
-        return technicianInventoryRepository.findByTechnicianId(query.technicianId());
+        return technicianInventoryRepository.findByTechnicianIdWithStocks(query.technicianId().technicianId());
     }
 
     @Override
@@ -37,9 +38,9 @@ public class TechnicianInventoryQueryServiceImpl implements TechnicianInventoryQ
 
     @Override
     public Optional<ComponentStock> handle(GetStockItemDetailsQuery query) {
-        ComponentId componentId = query.componentId();
+        UUID componentId = query.componentId().componentId();
 
-        return componentStockRepository.findByTechnicianInventory_IdAndComponent_Id(query.technicianId().technicianId(),componentId);
+        return componentStockRepository.findByTechnicianInventoryIdAndComponentUid(query.technicianId().technicianId(),componentId);
     }
 
 }
