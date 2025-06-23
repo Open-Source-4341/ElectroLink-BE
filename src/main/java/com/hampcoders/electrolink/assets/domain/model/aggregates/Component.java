@@ -33,6 +33,10 @@ public class Component extends AuditableAbstractAggregateRoot<Component> {
     @Column(name = "component_type_id")
     private Long componentTypeId;
 
+    @Version
+    @Column(name = "version")
+    private Long version;
+
     protected Component() {
         this.name = "";
         this.description = "";
@@ -40,9 +44,8 @@ public class Component extends AuditableAbstractAggregateRoot<Component> {
         this.isActive = false;
     }
 
-    public Component(CreateComponentCommand command) {
+    public Component(   CreateComponentCommand command) {
         this();
-        this.componentUid = UUID.randomUUID();
         this.name = command.name();
         this.description = command.description();
         this.componentTypeId = command.componentTypeId(); // Corregido

@@ -4,11 +4,13 @@ import com.hampcoders.electrolink.assets.domain.model.aggregates.TechnicianInven
 import com.hampcoders.electrolink.assets.domain.model.commands.AddComponentStockCommand;
 import com.hampcoders.electrolink.assets.domain.model.commands.CreateTechnicianInventoryCommand;
 import com.hampcoders.electrolink.assets.domain.model.commands.UpdateComponentStockCommand;
+import com.hampcoders.electrolink.assets.domain.model.entities.ComponentStock;
 import com.hampcoders.electrolink.assets.domain.model.valueobjects.TechnicianId;
 import com.hampcoders.electrolink.assets.domain.services.TechnicianInventoryCommandService;
 import com.hampcoders.electrolink.assets.infrastructure.persistence.jpa.repositories.ComponentRepository;
 import com.hampcoders.electrolink.assets.infrastructure.persistence.jpa.repositories.TechnicianInventoryRepository;
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -50,23 +52,27 @@ public class TechnicianInventoryCommandServiceImpl implements TechnicianInventor
     }
 
     @Override
+    @Transactional
     public Optional<TechnicianInventory> handle(UpdateComponentStockCommand command) {
-        var inventory = technicianInventoryRepository.findByTechnicianIdWithStocks(command.technicianId())
-                .orElseThrow(() -> new EntityNotFoundException("TechnicianInventory not found for technician ID: " + command.technicianId()));
+        UUID technicianId = new TechnicianId(command.technicianId()).technicianId();
 
-        // El método updateStockItem en tu agregado ya usa un comando.
-        var domainCommand = new UpdateComponentStockCommand(
-                command.technicianId(),
-                command.componentId(),
-                command.newQuantity(),
-                command.newAlertThreshold()
-        );
+        TechnicianInventory inventory = technicianInventoryRepository.findByTechnicianId(technicianId)
+                .orElseThrow(() -> new EntityNotFoundException("TechnicianInventory not found for technician ID: " + technicianId.toString()));
 
-        boolean updated = inventory.updateStockItem(domainCommand);
-        if (!updated) {
-            return Optional.empty(); // O lanzar una excepción si el item de stock no se encontró
+        // Busca el componente dentro del inventario
+        Optional<ComponentStock> stockOpt = inventory.getComponentStocks().stream()
+                .filter(stock -> stock.getComponent().getComponentUid().equals(command.componentId()))
+                .findFirst();
+
+        if (stockOpt.isEmpty()) {
+            throw new EntityNotFoundException("Component not found in technician's inventory: " + command.componentId());
         }
-        var savedInventory = technicianInventoryRepository.save(inventory);
-        return Optional.of(savedInventory);
+
+        ComponentStock stock = stockOpt.get();
+        stock.updateQuantity(command.newQuantity());
+        stock.updateAlertThreshold(command.newAlertThreshold());
+
+        technicianInventoryRepository.save(inventory);
+        return Optional.of(inventory);
     }
 }

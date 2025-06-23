@@ -19,7 +19,7 @@ public interface ComponentStockRepository extends JpaRepository<ComponentStock, 
 
     List<ComponentStock> findAllByTechnicianInventory_Id(UUID technicianInventoryId);
 
-    List<ComponentStock> findAllByComponent_Id(UUID component_id);
+    List<ComponentStock> findAllByComponent_ComponentUid(UUID componentUid);
 
     List<ComponentStock> findAllByQuantityAvailableLessThan(int quantity);
 
