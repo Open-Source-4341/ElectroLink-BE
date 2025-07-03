@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 public class PropertyQueryServiceImpl implements PropertyQueryService {
@@ -25,12 +26,12 @@ public class PropertyQueryServiceImpl implements PropertyQueryService {
 
     @Override
     public Optional<Property> handle(GetPropertyByIdQuery query) {
-        return propertyRepository.findByIdWithPhoto(query.propertyId());
+        return propertyRepository.findById(UUID.fromString(query.propertyId().toString()));
     }
 
     @Override
     public List<Property> handle(GetAllPropertiesByOwnerIdQuery query) {
-        return propertyRepository.findByOwnerId(query.ownerId());
+        return propertyRepository.findPropertiesByOwnerId(query.ownerId());
     }
 
     @Override
@@ -38,12 +39,5 @@ public class PropertyQueryServiceImpl implements PropertyQueryService {
         return propertyRepository.findAll();
     }
 
-    @Override
-    public List<PropertyPhoto> handle(GetAllPhotosByPropertyIdQuery query) {
-        var property = propertyRepository.findByIdWithPhoto(query.propertyId());
-        if (property.isPresent() && property.get().getPhoto() != null) {
-            return List.of(property.get().getPhoto());
-        }
-        return Collections.emptyList();
-    }
+
 }

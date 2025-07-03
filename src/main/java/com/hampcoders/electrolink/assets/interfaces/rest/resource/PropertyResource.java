@@ -5,7 +5,6 @@ public record PropertyResource(
         String ownerId,
         AddressResource address,
         RegionResource region,
-        DistrictResource district,
-        String photoUrl
+        DistrictResource district
 ) {
 }

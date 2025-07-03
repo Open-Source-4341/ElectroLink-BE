@@ -26,8 +26,7 @@ public class PropertyResourceFromEntityAssembler {
                 entity.getOwnerId().ownerId().toString(),
                 addressResource,
                 regionResource,
-                districtResource,
-                entity.getPhoto() != null ? entity.getPhoto().photoUrl() : null
+                districtResource
         );
     }
 }

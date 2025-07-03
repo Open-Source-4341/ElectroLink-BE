@@ -14,5 +14,4 @@ public interface PropertyQueryService {
     Optional<Property> handle(GetPropertyByIdQuery query);
     List<Property> handle(GetAllPropertiesByOwnerIdQuery query);
     List<Property> handle(GetAllPropertiesQuery query);
-    List<PropertyPhoto> handle(GetAllPhotosByPropertyIdQuery query);
 }

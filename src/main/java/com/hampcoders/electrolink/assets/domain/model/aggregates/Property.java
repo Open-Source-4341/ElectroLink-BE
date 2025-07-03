@@ -40,9 +40,6 @@ public class Property {
     @JoinColumn(name = "status_id", nullable = false)
     private PropertyStatus status;*/
 
-    @Embedded
-    private PropertyPhoto photo;
-
     protected Property() {
     }
 
@@ -52,16 +49,8 @@ public class Property {
         this.region = command.region();
         this.district = command.district();
         //this.status = PropertyStatus.getDefaultPropertyStatus();
-        this.photo = null;
     }
 
-    public void setPhoto(String photoUrl) {
-        if (photoUrl == null || photoUrl.trim().isEmpty()) {
-            this.photo = null;
-            return;
-        }
-        this.photo = new PropertyPhoto(photoUrl);
-    }
 
     public void update(UpdatePropertyCommand command) {
         this.address = command.address();
