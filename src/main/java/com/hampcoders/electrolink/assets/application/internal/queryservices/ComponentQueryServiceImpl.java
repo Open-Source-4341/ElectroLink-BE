@@ -1,10 +1,7 @@
 package com.hampcoders.electrolink.assets.application.internal.queryservices;
 
 import com.hampcoders.electrolink.assets.domain.model.aggregates.Component;
-import com.hampcoders.electrolink.assets.domain.model.queries.GetAllComponentsQuery;
-import com.hampcoders.electrolink.assets.domain.model.queries.GetComponentByIdQuery;
-import com.hampcoders.electrolink.assets.domain.model.queries.GetComponentsByIdsQuery;
-import com.hampcoders.electrolink.assets.domain.model.queries.GetComponentsByTypeIdQuery;
+import com.hampcoders.electrolink.assets.domain.model.queries.*;
 import com.hampcoders.electrolink.assets.domain.model.valueobjects.ComponentId;
 import com.hampcoders.electrolink.assets.domain.services.ComponentQueryService;
 import com.hampcoders.electrolink.assets.infrastructure.persistence.jpa.repositories.ComponentRepository;
@@ -44,5 +41,14 @@ public class ComponentQueryServiceImpl implements ComponentQueryService {
                 .map(ComponentId::componentId)
                 .toList();
         return componentRepository.findByComponentUidIn(uuidList);
+    }
+
+    @Override
+    public List<Component> handle(GetComponentsByNameQuery query) {
+        return componentRepository
+                .findTop10ByNameContainingIgnoreCase(query.term())
+                .stream()
+                .limit(query.limit())
+                .toList();
     }
 }

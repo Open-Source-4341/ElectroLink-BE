@@ -17,4 +17,5 @@ public interface ComponentRepository extends JpaRepository<Component, UUID> {
     boolean existsByName(String name);
     boolean existsByComponentTypeId(Long componentTypeId);
     List<Component> findByComponentUidIn(List<UUID> uuids);
+    List<Component> findTop10ByNameContainingIgnoreCase(String nameFragment);
 }
