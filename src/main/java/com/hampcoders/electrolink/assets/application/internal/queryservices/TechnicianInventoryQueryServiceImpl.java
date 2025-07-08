@@ -38,7 +38,7 @@ public class TechnicianInventoryQueryServiceImpl implements TechnicianInventoryQ
 
     @Override
     public Optional<ComponentStock> handle(GetStockItemDetailsQuery query) {
-        UUID componentId = query.componentId().componentId();
+        Long componentId = query.componentId().componentId();
 
         return componentStockRepository.findByTechnicianInventoryIdAndComponentUid(query.technicianId().technicianId(),componentId);
     }

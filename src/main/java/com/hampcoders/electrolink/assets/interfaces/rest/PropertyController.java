@@ -60,7 +60,7 @@ public class PropertyController {
     })
     @GetMapping("/owner/{ownerId}")
     public ResponseEntity<List<PropertyResource>> getAllPropertiesByOwnerId(
-            @Parameter(description = "UUID of the owner", required = true) @PathVariable UUID ownerId) {
+            @Parameter(description = "UUID of the owner", required = true) @PathVariable Long ownerId) {
         var getAllPropertiesByOwnerIdQuery = new GetAllPropertiesByOwnerIdQuery(new OwnerId(ownerId));
         var properties = propertyQueryService.handle(getAllPropertiesByOwnerIdQuery);
 

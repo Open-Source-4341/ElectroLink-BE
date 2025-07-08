@@ -11,7 +11,7 @@ import java.util.UUID;
 
 public class CreatePropertyCommandFromResourceAssembler {
     public static CreatePropertyCommand toCommandFromResource(CreatePropertyResource resource) {
-        var ownerId = new OwnerId(UUID.fromString(resource.ownerId()));
+        var ownerId = new OwnerId(Long.parseLong(resource.ownerId()));
 
         var address = new Address(
                 resource.address().street(),

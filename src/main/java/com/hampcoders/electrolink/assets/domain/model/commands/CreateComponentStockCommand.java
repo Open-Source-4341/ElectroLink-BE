@@ -5,5 +5,5 @@ import com.hampcoders.electrolink.assets.domain.model.valueobjects.TechnicianId;
 
 import java.util.UUID;
 
-public record CreateComponentStockCommand(UUID technicianId, UUID componentId, int quantity, int alertThreshold) {
+public record CreateComponentStockCommand(Long technicianId, Long componentId, int quantity, int alertThreshold) {
 }

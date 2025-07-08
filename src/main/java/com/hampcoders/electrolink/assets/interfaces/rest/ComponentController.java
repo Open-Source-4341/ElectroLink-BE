@@ -51,7 +51,7 @@ public class ComponentController {
     })
     @GetMapping("/{componentId}")
     public ResponseEntity<ComponentResource> getComponentById(
-            @Parameter(description = "UUID of the component to retrieve") @PathVariable UUID componentId) {
+            @Parameter(description = "Long of the component to retrieve") @PathVariable Long componentId) {
         var getComponentByIdQuery = new GetComponentByIdQuery(new ComponentId(componentId));
         var component = componentQueryService.handle(getComponentByIdQuery);
 
@@ -108,7 +108,7 @@ public class ComponentController {
     })
     @PutMapping("/{componentId}")
     public ResponseEntity<ComponentResource> updateComponent(
-            @Parameter(description = "UUID of the component to update") @PathVariable UUID componentId,
+            @Parameter(description = "Long of the component to update") @PathVariable Long componentId,
             @Parameter(description = "Updated details of the component") @RequestBody @Valid UpdateComponentResource resource) {
         var updateComponentCommand = UpdateComponentCommandFromResourceAssembler.toCommandFromResource(componentId, resource);
         var updatedComponent = componentCommandService.handle(updateComponentCommand);
@@ -125,7 +125,7 @@ public class ComponentController {
     })
     @DeleteMapping("/{componentId}")
     public ResponseEntity<Void> deleteComponent(
-            @Parameter(description = "UUID of the component to delete") @PathVariable UUID componentId) {
+            @Parameter(description = "Long of the component to delete") @PathVariable Long componentId) {
         var deleteComponentCommand = new DeleteComponentCommand(componentId);
         Boolean result = componentCommandService.handle(deleteComponentCommand);
 

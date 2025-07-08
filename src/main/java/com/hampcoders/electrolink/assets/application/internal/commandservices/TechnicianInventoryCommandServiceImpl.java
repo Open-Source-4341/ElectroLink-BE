@@ -6,7 +6,6 @@ import com.hampcoders.electrolink.assets.domain.model.commands.CreateTechnicianI
 import com.hampcoders.electrolink.assets.domain.model.commands.DeleteComponentStockCommand;
 import com.hampcoders.electrolink.assets.domain.model.commands.UpdateComponentStockCommand;
 import com.hampcoders.electrolink.assets.domain.model.entities.ComponentStock;
-import com.hampcoders.electrolink.assets.domain.model.valueobjects.TechnicianId;
 import com.hampcoders.electrolink.assets.domain.services.TechnicianInventoryCommandService;
 import com.hampcoders.electrolink.assets.infrastructure.persistence.jpa.repositories.ComponentRepository;
 import com.hampcoders.electrolink.assets.infrastructure.persistence.jpa.repositories.TechnicianInventoryRepository;
@@ -30,7 +29,7 @@ public class TechnicianInventoryCommandServiceImpl implements TechnicianInventor
 
     @Override
     public UUID handle(CreateTechnicianInventoryCommand command) {
-        if (technicianInventoryRepository.existsByTechnicianId(command.technicianId())) {
+        if (technicianInventoryRepository.existsByTechnicianId(command.technicianId().technicianId())) {
             throw new IllegalStateException("Technician inventory already exists for this technician ID");
         }
         var inventory = new TechnicianInventory(command);
@@ -54,10 +53,10 @@ public class TechnicianInventoryCommandServiceImpl implements TechnicianInventor
     @Override
     @Transactional
     public Optional<TechnicianInventory> handle(UpdateComponentStockCommand command) {
-        UUID technicianId = new TechnicianId(command.technicianId()).technicianId();
+        Long technicianId = command.technicianId();
 
         TechnicianInventory inventory = technicianInventoryRepository.findByTechnicianId(technicianId)
-                .orElseThrow(() -> new EntityNotFoundException("TechnicianInventory not found for technician ID: " + technicianId.toString()));
+                .orElseThrow(() -> new EntityNotFoundException("TechnicianInventory not found for technician ID: " + technicianId));
 
         Optional<ComponentStock> stockOpt = inventory.getComponentStocks().stream()
                 .filter(stock -> stock.getComponent().getComponentUid().equals(command.componentId()))
@@ -77,10 +76,11 @@ public class TechnicianInventoryCommandServiceImpl implements TechnicianInventor
 
     @Override
     public Boolean handle(DeleteComponentStockCommand command) {
-        UUID technicianId = new TechnicianId(command.technicianId()).technicianId();
+        Long technicianId = command.technicianId();
+
         return technicianInventoryRepository.findByTechnicianId(technicianId)
                 .map(inventory -> {
-                    boolean removed = inventory.removeStockItem(command);
+                    boolean removed = inventory.removeStockItem(command.componentId());
                     if (removed) {
                         technicianInventoryRepository.save(inventory);
                     }

@@ -1,7 +1,6 @@
 package com.hampcoders.electrolink.assets.infrastructure.persistence.jpa.repositories;
 
 import com.hampcoders.electrolink.assets.domain.model.aggregates.TechnicianInventory;
-import com.hampcoders.electrolink.assets.domain.model.valueobjects.TechnicianId;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -15,13 +14,13 @@ import java.util.UUID;
 public interface TechnicianInventoryRepository extends JpaRepository<TechnicianInventory, UUID> {
 
     @Query("SELECT ti FROM TechnicianInventory ti LEFT JOIN FETCH ti.stockList.items WHERE ti.technicianId = :technicianId")
-    Optional<TechnicianInventory> findByTechnicianIdWithStocks(@Param("technicianId") UUID technicianId);
+    Optional<TechnicianInventory> findByTechnicianIdWithStocks(@Param("technicianId") Long technicianId);
 
-    Optional<TechnicianInventory> findByTechnicianId(UUID technicianId);
+    Optional<TechnicianInventory> findByTechnicianId(Long technicianId);
 
     @Query("SELECT DISTINCT i FROM TechnicianInventory i JOIN i.stockList.items s WHERE s.quantityAvailable < :threshold")
     List<TechnicianInventory> findInventoriesWithLowStock(@Param("threshold") int threshold);
 
-    boolean existsByTechnicianId(UUID technicianId);
+    boolean existsByTechnicianId(Long technicianId);
 }
 

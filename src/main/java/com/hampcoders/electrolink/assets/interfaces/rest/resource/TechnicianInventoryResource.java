@@ -5,6 +5,6 @@ import java.util.UUID;
 
 public record TechnicianInventoryResource(
         UUID inventoryId,
-        UUID technicianId,
+        Long technicianId,
         List<ComponentStockResource> stock
 ) {}

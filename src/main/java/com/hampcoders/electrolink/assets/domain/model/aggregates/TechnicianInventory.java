@@ -1,10 +1,10 @@
 package com.hampcoders.electrolink.assets.domain.model.aggregates;
 
 import com.hampcoders.electrolink.assets.domain.model.commands.CreateTechnicianInventoryCommand;
-import com.hampcoders.electrolink.assets.domain.model.commands.DeleteComponentStockCommand;
 import com.hampcoders.electrolink.assets.domain.model.commands.UpdateComponentStockCommand;
 import com.hampcoders.electrolink.assets.domain.model.entities.ComponentStock;
 import com.hampcoders.electrolink.assets.domain.model.valueobjects.InventoryStockList;
+import com.hampcoders.electrolink.shared.domain.model.aggregates.AuditableAbstractAggregateRootNoId;
 import jakarta.persistence.*;
 import lombok.Getter;
 
@@ -16,13 +16,13 @@ import java.util.UUID;
 @Entity
 @Table(name = "technician_inventories")
 @Getter
-public class TechnicianInventory {
+public class TechnicianInventory extends AuditableAbstractAggregateRootNoId<TechnicianInventory> {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
     @Column(name = "technician_id", nullable = false)
-    private UUID technicianId;
+    private Long technicianId;
 
     @Embedded
     private final InventoryStockList stockList;
@@ -31,13 +31,13 @@ public class TechnicianInventory {
         this.stockList = new InventoryStockList();
     }
 
-    public TechnicianInventory(UUID technicianId) {
+    public TechnicianInventory(Long technicianId) {
         this();
         this.technicianId = technicianId;
     }
     public TechnicianInventory(CreateTechnicianInventoryCommand command) {
         this();
-        this.technicianId = command.technicianId();
+        this.technicianId = command.technicianId().technicianId();
     }
 
     public void addToStock(Component component, int quantity, int threshold) {
@@ -64,7 +64,7 @@ public class TechnicianInventory {
         return false;
     }
 
-    public boolean removeStockItem(DeleteComponentStockCommand command) {
-        return this.stockList.getItems().removeIf(stock -> stock.getComponent().getComponentUid().equals(command.componentId()));
+    public boolean removeStockItem(Long componentId) {
+        return this.stockList.getItems().removeIf(stock -> stock.getComponent().getComponentUid().equals(componentId));
     }
 }

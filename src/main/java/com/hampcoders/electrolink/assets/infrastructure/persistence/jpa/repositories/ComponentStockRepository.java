@@ -1,7 +1,6 @@
 package com.hampcoders.electrolink.assets.infrastructure.persistence.jpa.repositories;
 
 import com.hampcoders.electrolink.assets.domain.model.entities.ComponentStock;
-import com.hampcoders.electrolink.assets.domain.model.valueobjects.ComponentId;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -15,11 +14,11 @@ import java.util.UUID;
 public interface ComponentStockRepository extends JpaRepository<ComponentStock, UUID> {
 
     @Query("SELECT cs FROM ComponentStock cs WHERE cs.technicianInventory.id = :technicianInventoryId AND cs.component.componentUid = :componentUid")
-    Optional<ComponentStock> findByTechnicianInventoryIdAndComponentUid(@Param("technicianInventoryId") UUID technicianInventoryId, @Param("componentUid") UUID componentUid);
+    Optional<ComponentStock> findByTechnicianInventoryIdAndComponentUid(@Param("technicianInventoryId") Long technicianInventoryId, @Param("componentUid") Long componentUid);
 
     List<ComponentStock> findAllByTechnicianInventory_Id(UUID technicianInventoryId);
 
-    List<ComponentStock> findAllByComponent_ComponentUid(UUID componentUid);
+    List<ComponentStock> findAllByComponent_ComponentUid(Long componentUid);
 
     List<ComponentStock> findAllByQuantityAvailableLessThan(int quantity);
 
