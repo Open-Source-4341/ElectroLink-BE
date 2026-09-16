@@ -70,6 +70,10 @@ public class WebSecurityConfiguration {
       .sessionManagement(customizer -> customizer.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
       .authorizeHttpRequests(authorizeRequests -> authorizeRequests
         .requestMatchers(
+          "/api/v1/profiles/me",
+          "/api/v1/profiles/me/**"
+        ).authenticated()
+        .requestMatchers(
           "/api/v1/authentication/**",   // autenticación pública
           "/api/v1/profiles/**",         // 👈 perfiles públicos
           "/v3/api-docs/**",
