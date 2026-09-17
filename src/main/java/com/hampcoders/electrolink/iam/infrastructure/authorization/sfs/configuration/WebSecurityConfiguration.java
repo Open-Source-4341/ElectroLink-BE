@@ -4,6 +4,7 @@ import com.hampcoders.electrolink.iam.infrastructure.authorization.sfs.pipeline.
 import com.hampcoders.electrolink.iam.infrastructure.hashing.bcrypt.BCryptHashingService;
 import com.hampcoders.electrolink.iam.infrastructure.tokens.jwt.BearerTokenService;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -20,6 +21,7 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 
+import java.util.Arrays;
 import java.util.List;
 
 @Configuration
@@ -30,6 +32,9 @@ public class WebSecurityConfiguration {
   private final BearerTokenService tokenService;
   private final BCryptHashingService hashingService;
   private final AuthenticationEntryPoint unauthorizedRequestHandler;
+
+  @Value("${application.cors.allowed-origins:*}")
+  private String allowedOrigins;
 
   @Bean
   public BearerAuthorizationRequestFilter authorizationRequestFilter() {
@@ -59,8 +64,13 @@ public class WebSecurityConfiguration {
   public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
     http.cors(corsConfigurer -> corsConfigurer.configurationSource(request -> {
       var cors = new CorsConfiguration();
-      cors.setAllowedOrigins(List.of("*"));
-      cors.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE"));
+      cors.setAllowedOriginPatterns(
+        Arrays.stream(allowedOrigins.split(","))
+          .map(String::trim)
+          .filter(origin -> !origin.isEmpty())
+          .toList()
+      );
+      cors.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
       cors.setAllowedHeaders(List.of("*"));
       return cors;
     }));
