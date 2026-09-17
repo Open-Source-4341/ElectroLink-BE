@@ -2,10 +2,13 @@ package com.hampcoders.electrolink.iam.interfaces.rest;
 
 import com.hampcoders.electrolink.iam.domain.model.queries.GetAllUsersQuery;
 import com.hampcoders.electrolink.iam.domain.model.queries.GetUserByIdQuery;
+import com.hampcoders.electrolink.iam.domain.model.queries.GetUserByUsernameQuery;
 import com.hampcoders.electrolink.iam.domain.services.UserQueryService;
 import com.hampcoders.electrolink.iam.interfaces.rest.resources.UserResource;
 import com.hampcoders.electrolink.iam.interfaces.rest.transform.UserResourceFromEntityAssembler;
+import com.hampcoders.electrolink.shared.application.internal.services.AuthenticatedUserService;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -27,9 +30,29 @@ import java.util.List;
 public class UsersController {
 
   private final UserQueryService userQueryService;
+  private final AuthenticatedUserService authenticatedUserService;
 
-  public UsersController(UserQueryService userQueryService) {
+  public UsersController(UserQueryService userQueryService,
+      AuthenticatedUserService authenticatedUserService) {
     this.userQueryService = userQueryService;
+    this.authenticatedUserService = authenticatedUserService;
+  }
+
+  /**
+   * Returns the IAM user represented by the current bearer token.
+   * Mobile and web clients can use this endpoint without persisting a user id.
+   */
+  @GetMapping("/me")
+  public ResponseEntity<UserResource> getCurrentUser() {
+    var username = authenticatedUserService.getAuthenticatedEmail();
+    if (username.isEmpty()) {
+      return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+    }
+
+    return userQueryService.handle(new GetUserByUsernameQuery(username.get()))
+        .map(UserResourceFromEntityAssembler::toResourceFromEntity)
+        .map(ResponseEntity::ok)
+        .orElseGet(() -> ResponseEntity.notFound().build());
   }
 
   /**

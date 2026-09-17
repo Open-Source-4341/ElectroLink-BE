@@ -10,6 +10,7 @@ import com.hampcoders.electrolink.profiles.interfaces.rest.resources.ProfileReso
 import com.hampcoders.electrolink.profiles.interfaces.rest.transform.CreateProfileCommandFromResourceAssembler;
 import com.hampcoders.electrolink.profiles.interfaces.rest.transform.ProfileResourceFromEntityAssembler;
 import com.hampcoders.electrolink.profiles.interfaces.rest.transform.UpdateProfileCommandFromResourceAssembler;
+import com.hampcoders.electrolink.shared.application.internal.services.AuthenticatedUserService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
@@ -26,10 +27,14 @@ public class ProfilesController {
 
   private final ProfileQueryService profileQueryService;
   private final ProfileCommandService profileCommandService;
+  private final AuthenticatedUserService authenticatedUserService;
 
-  public ProfilesController(ProfileQueryService profileQueryService, ProfileCommandService profileCommandService) {
+  public ProfilesController(ProfileQueryService profileQueryService,
+      ProfileCommandService profileCommandService,
+      AuthenticatedUserService authenticatedUserService) {
     this.profileQueryService = profileQueryService;
     this.profileCommandService = profileCommandService;
+    this.authenticatedUserService = authenticatedUserService;
   }
 
   @PostMapping
@@ -50,6 +55,23 @@ public class ProfilesController {
       .map(ProfileResourceFromEntityAssembler::toResourceFromEntity)
       .collect(Collectors.toList());
     return ResponseEntity.ok(resources);
+  }
+
+  /**
+   * Returns the profile linked to the current bearer token.
+   * This avoids hard-coded profile ids in mobile and web clients.
+   */
+  @GetMapping("/me")
+  public ResponseEntity<ProfileResource> getCurrentProfile() {
+    var email = authenticatedUserService.getAuthenticatedEmail();
+    if (email.isEmpty()) {
+      return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+    }
+
+    return profileQueryService.handle(new GetProfileByEmailQuery(email.get()))
+        .map(ProfileResourceFromEntityAssembler::toResourceFromEntity)
+        .map(ResponseEntity::ok)
+        .orElseGet(() -> ResponseEntity.notFound().build());
   }
 
   @GetMapping("/{profileId}")
