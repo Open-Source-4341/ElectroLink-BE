@@ -3,6 +3,7 @@ package com.hampcoders.electrolink.assets.domain.model;
 import com.hampcoders.electrolink.assets.domain.model.aggregates.Component;
 import com.hampcoders.electrolink.assets.domain.model.aggregates.TechnicianInventory;
 import com.hampcoders.electrolink.assets.domain.model.commands.CreateComponentCommand;
+import com.hampcoders.electrolink.assets.domain.model.commands.UpdateComponentStockCommand;
 import com.hampcoders.electrolink.assets.domain.model.entities.ComponentStock;
 import com.hampcoders.electrolink.assets.domain.model.valueobjects.ComponentId;
 import org.junit.jupiter.api.DisplayName;
@@ -162,6 +163,51 @@ class ComponentEntitiesTest {
         assertThat(stock.getQuantityAvailable()).isEqualTo(10);
         assertThat(stock.getAlertThreshold()).isEqualTo(3);
         assertThat(stock.getTechnicianInventory()).isSameAs(inventory);
+    }
+
+    @Test
+    @DisplayName("TechnicianInventory: updateStockItem actualiza el stock y devuelve true")
+    void technicianInventory_updateStockItem_whenPresent_updatesAndReturnsTrue() {
+        // Arrange
+        var inventory = new TechnicianInventory(1L);
+        inventory.addToStock(componentWithUid(20L), 10, 3);
+        var command = new UpdateComponentStockCommand(1L, 20L, 25, 5);
+
+        // Act
+        var updated = inventory.updateStockItem(command);
+
+        // Assert
+        assertThat(updated).isTrue();
+        var stock = inventory.getComponentStocks().get(0);
+        assertThat(stock.getQuantityAvailable()).isEqualTo(25);
+        assertThat(stock.getAlertThreshold()).isEqualTo(5);
+    }
+
+    @Test
+    @DisplayName("TechnicianInventory: updateStockItem devuelve false si el componente no está")
+    void technicianInventory_updateStockItem_whenAbsent_returnsFalse() {
+        // Arrange
+        var inventory = new TechnicianInventory(1L);
+
+        // Act
+        var updated = inventory.updateStockItem(new UpdateComponentStockCommand(1L, 99L, 25, 5));
+
+        // Assert
+        assertThat(updated).isFalse();
+    }
+
+    @Test
+    @DisplayName("TechnicianInventory: updateStockItem conserva el umbral si es null")
+    void technicianInventory_updateStockItem_whenThresholdNull_keepsThreshold() {
+        // Arrange
+        var inventory = new TechnicianInventory(1L);
+        inventory.addToStock(componentWithUid(20L), 10, 3);
+
+        // Act
+        inventory.updateStockItem(new UpdateComponentStockCommand(1L, 20L, 25, null));
+
+        // Assert
+        assertThat(inventory.getComponentStocks().get(0).getAlertThreshold()).isEqualTo(3);
     }
 
     @Test

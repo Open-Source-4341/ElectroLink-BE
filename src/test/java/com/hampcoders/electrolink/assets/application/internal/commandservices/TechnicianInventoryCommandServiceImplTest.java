@@ -163,6 +163,22 @@ class TechnicianInventoryCommandServiceImplTest {
     }
 
     @Test
+    @DisplayName("UpdateStock: conserva el umbral actual si newAlertThreshold es null")
+    void updateStock_whenThresholdIsNull_keepsCurrentThreshold() {
+        // Arrange
+        var inventory = inventoryWithStock(10, 3);
+        when(technicianInventoryRepository.findByTechnicianId(TECHNICIAN_ID)).thenReturn(Optional.of(inventory));
+
+        // Act
+        var result = service.handle(new UpdateComponentStockCommand(TECHNICIAN_ID, COMPONENT_ID, 25, null));
+
+        // Assert
+        var stock = result.orElseThrow().getComponentStocks().get(0);
+        assertThat(stock.getQuantityAvailable()).isEqualTo(25);
+        assertThat(stock.getAlertThreshold()).isEqualTo(3);
+    }
+
+    @Test
     @DisplayName("UpdateStock: lanza EntityNotFoundException si el técnico no tiene inventario")
     void updateStock_whenInventoryMissing_throwsEntityNotFoundException() {
         // Arrange
