@@ -112,9 +112,7 @@ class ComponentEntitiesTest {
         var stock = new ComponentStock(new TechnicianInventory(1L), componentWithUid(1L), 10, 3, new Date());
 
         // Act + Assert
-        assertThatThrownBy(() -> stock.updateQuantity(-1))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessage("Quantity cannot be negative.");
+        assertThatThrownBy(() -> stock.updateQuantity(-1)).isInstanceOf(IllegalArgumentException.class).hasMessage("Quantity cannot be negative.");
         assertThat(stock.getQuantityAvailable()).isEqualTo(10);
     }
 
@@ -138,9 +136,7 @@ class ComponentEntitiesTest {
         var stock = new ComponentStock(new TechnicianInventory(1L), componentWithUid(1L), 10, 3, new Date());
 
         // Act + Assert
-        assertThatThrownBy(() -> stock.updateAlertThreshold(-1))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessage("Alert threshold cannot be negative.");
+        assertThatThrownBy(() -> stock.updateAlertThreshold(-1)).isInstanceOf(IllegalArgumentException.class).hasMessage("Alert threshold cannot be negative.");
         assertThat(stock.getAlertThreshold()).isEqualTo(3);
     }
 
