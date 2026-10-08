@@ -37,7 +37,7 @@ public class ComponentQueryServiceImpl implements ComponentQueryService {
 
     @Override
     public List<Component> handle(GetComponentsByIdsQuery query) {
-        List<UUID> uuidList = query.ids().stream()
+        List<Long> uuidList = query.ids().stream()
                 .map(ComponentId::componentId)
                 .toList();
         return componentRepository.findByComponentUidIn(uuidList);

@@ -3,6 +3,7 @@ package com.hampcoders.electrolink.assets.domain.model.aggregates;
 import com.hampcoders.electrolink.assets.domain.model.commands.CreateComponentCommand;
 import com.hampcoders.electrolink.assets.domain.model.valueobjects.ComponentTypeId;
 import com.hampcoders.electrolink.shared.domain.model.aggregates.AuditableAbstractAggregateRoot;
+import com.hampcoders.electrolink.shared.domain.model.aggregates.AuditableAbstractAggregateRootNoId;
 import jakarta.persistence.*;
 import lombok.Getter;
 
@@ -11,12 +12,12 @@ import java.util.UUID;
 @Entity
 @Table(name = "components")
 @Getter
-public class Component extends AuditableAbstractAggregateRoot<Component> {
+public class Component extends AuditableAbstractAggregateRootNoId<Component> {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "component_uid", unique = true, nullable = false)
-    private UUID componentUid;
+    private Long componentUid;
 
     @Getter
     @Column(name="name", length = 100, nullable = false)
@@ -48,7 +49,7 @@ public class Component extends AuditableAbstractAggregateRoot<Component> {
         this();
         this.name = command.name();
         this.description = command.description();
-        this.componentTypeId = command.componentTypeId(); // Corregido
+        this.componentTypeId = command.componentTypeId();
         this.isActive = true;
     }
     public void updateInfo(String name, String description) {

@@ -6,7 +6,7 @@ import com.hampcoders.electrolink.assets.interfaces.rest.resource.AddComponentSt
 import java.util.UUID;
 
 public class AddComponentStockCommandFromResourceAssembler {
-    public static AddComponentStockCommand toCommandFromResource(UUID technicianId, AddComponentStockResource resource) {
+    public static AddComponentStockCommand toCommandFromResource(Long technicianId, AddComponentStockResource resource) {
         return new AddComponentStockCommand(
                 technicianId,
                 resource.componentId(),

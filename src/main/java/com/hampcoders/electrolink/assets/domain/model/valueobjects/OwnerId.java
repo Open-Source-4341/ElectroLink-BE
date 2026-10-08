@@ -1,15 +1,10 @@
 package com.hampcoders.electrolink.assets.domain.model.valueobjects;
 
-
-import java.util.UUID;
-
-public record OwnerId(UUID ownerId) {
+public record OwnerId(Long ownerId) {
     public OwnerId {
-        if(ownerId == null ) {
+        if (ownerId == null || ownerId <= 0) {
             throw new IllegalArgumentException("Owner ID must be a positive number.");
         }
     }
-    public OwnerId() {
-        this(UUID.randomUUID());
-    }
+
 }

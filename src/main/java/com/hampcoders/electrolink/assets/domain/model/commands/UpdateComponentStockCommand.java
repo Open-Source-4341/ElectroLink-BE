@@ -5,4 +5,4 @@ import com.hampcoders.electrolink.assets.domain.model.valueobjects.TechnicianId;
 
 import java.util.UUID;
 
-public record UpdateComponentStockCommand(UUID technicianId, UUID componentId, int newQuantity, Integer newAlertThreshold) { }
+public record UpdateComponentStockCommand(Long technicianId, Long componentId, int newQuantity, Integer newAlertThreshold) { }

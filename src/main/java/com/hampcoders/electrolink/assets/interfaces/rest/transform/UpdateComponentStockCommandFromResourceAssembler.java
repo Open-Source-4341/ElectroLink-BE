@@ -5,7 +5,7 @@ import com.hampcoders.electrolink.assets.interfaces.rest.resource.UpdateComponen
 import java.util.UUID;
 
 public class UpdateComponentStockCommandFromResourceAssembler {
-    public static UpdateComponentStockCommand toCommandFromResource(UUID technicianId, UUID componentId, UpdateComponentStockResource resource) {
+    public static UpdateComponentStockCommand toCommandFromResource(Long technicianId, Long componentId, UpdateComponentStockResource resource) {
         return new UpdateComponentStockCommand(
                 technicianId,
                 componentId,

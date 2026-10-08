@@ -5,5 +5,5 @@ import com.hampcoders.electrolink.assets.domain.model.valueobjects.TechnicianId;
 
 import java.util.UUID;
 
-public record DeleteComponentStockCommand(UUID technicianId, UUID componentId) {
+public record DeleteComponentStockCommand(Long technicianId, Long componentId) {
 }

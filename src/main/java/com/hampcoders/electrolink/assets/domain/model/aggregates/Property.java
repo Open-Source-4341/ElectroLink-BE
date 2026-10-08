@@ -4,6 +4,7 @@ import com.hampcoders.electrolink.assets.domain.model.commands.CreatePropertyCom
 import com.hampcoders.electrolink.assets.domain.model.commands.UpdatePropertyCommand;
 import com.hampcoders.electrolink.assets.domain.model.entities.PropertyStatus;
 import com.hampcoders.electrolink.assets.domain.model.valueobjects.*;
+import com.hampcoders.electrolink.shared.domain.model.aggregates.AuditableAbstractAggregateRootNoId;
 import jakarta.persistence.*;
 import lombok.Getter;
 
@@ -12,7 +13,7 @@ import java.util.UUID;
 @Entity
 @Table(name = "properties")
 @Getter
-public class Property {
+public class Property extends AuditableAbstractAggregateRootNoId<Property> {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)

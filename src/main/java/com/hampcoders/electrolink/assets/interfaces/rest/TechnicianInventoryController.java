@@ -1,5 +1,7 @@
 package com.hampcoders.electrolink.assets.interfaces.rest;
 
+import com.hampcoders.electrolink.assets.application.internal.outboundservices.ExternalProfileService;
+import com.hampcoders.electrolink.assets.domain.model.commands.CreateTechnicianInventoryCommand;
 import com.hampcoders.electrolink.assets.domain.model.commands.DeleteComponentStockCommand;
 import com.hampcoders.electrolink.assets.domain.model.queries.GetInventoriesWithLowStockQuery;
 import com.hampcoders.electrolink.assets.domain.model.queries.GetStockItemDetailsQuery;
@@ -10,6 +12,7 @@ import com.hampcoders.electrolink.assets.domain.services.TechnicianInventoryComm
 import com.hampcoders.electrolink.assets.domain.services.TechnicianInventoryQueryService;
 import com.hampcoders.electrolink.assets.interfaces.rest.resource.*;
 import com.hampcoders.electrolink.assets.interfaces.rest.transform.*;
+import com.hampcoders.electrolink.shared.application.internal.services.AuthenticatedUserService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -25,11 +28,21 @@ public class TechnicianInventoryController {
 
     private final TechnicianInventoryCommandService inventoryCommandService;
     private final TechnicianInventoryQueryService inventoryQueryService;
+    private final AuthenticatedUserService authenticatedUserService;
+    private final ExternalProfileService externalProfileService;
 
-    public TechnicianInventoryController(TechnicianInventoryCommandService inventoryCommandService, TechnicianInventoryQueryService inventoryQueryService) {
+    public TechnicianInventoryController(
+            TechnicianInventoryCommandService inventoryCommandService,
+            TechnicianInventoryQueryService inventoryQueryService,
+            AuthenticatedUserService authenticatedUserService,
+            ExternalProfileService externalProfileService
+    ) {
         this.inventoryCommandService = inventoryCommandService;
         this.inventoryQueryService = inventoryQueryService;
+        this.authenticatedUserService = authenticatedUserService;
+        this.externalProfileService = externalProfileService;
     }
+
     @GetMapping("/low-stock")
     public ResponseEntity<List<TechnicianInventoryResource>> getInventoriesWithLowStock() {
         var query = new GetInventoriesWithLowStockQuery(5);
@@ -44,8 +57,8 @@ public class TechnicianInventoryController {
 
     @GetMapping("/technician/{technicianId}/stocks/{componentId}")
     public ResponseEntity<ComponentStockResource> getStockItemDetails(
-            @PathVariable UUID technicianId,
-            @PathVariable UUID componentId) {
+            @PathVariable Long technicianId,
+            @PathVariable Long componentId) {
 
         var query = new GetStockItemDetailsQuery(
                 new TechnicianId(technicianId),
@@ -60,7 +73,7 @@ public class TechnicianInventoryController {
     }
 
     @GetMapping("/technician/{technicianId}")
-    public ResponseEntity<TechnicianInventoryResource> getInventoryByTechnicianId(@PathVariable UUID technicianId) {
+    public ResponseEntity<TechnicianInventoryResource> getInventoryByTechnicianId(@PathVariable Long technicianId) {
         var query = new GetInventoryByTechnicianIdQuery(new TechnicianId(technicianId));
         var inventory = inventoryQueryService.handle(query);
 
@@ -70,29 +83,35 @@ public class TechnicianInventoryController {
     }
 
     @PostMapping
-    public ResponseEntity<TechnicianInventoryResource> createTechnicianInventory(@RequestBody @Valid CreateTechnicianInventoryResource resource) {
-        var command = CreateTechnicianInventoryCommandFromResourceAssembler.toCommandFromResource(resource);
+    public ResponseEntity<TechnicianInventoryResource> createTechnicianInventory() {
+        var emailOptional = authenticatedUserService.getAuthenticatedEmail();
+
+        if (emailOptional.isEmpty())
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+
+        var technicianIdOpt = externalProfileService.fetchTechnicianIdByEmail(emailOptional.get());
+
+        if (technicianIdOpt.isEmpty())
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+
+        var command = new CreateTechnicianInventoryCommand(technicianIdOpt.get());
         var inventoryId = inventoryCommandService.handle(command);
 
-        if (inventoryId == null) {
+        if (inventoryId == null)
             return ResponseEntity.badRequest().build();
-        }
 
-        var query = new GetInventoryByTechnicianIdQuery(new TechnicianId(resource.technicianId()));
+        var query = new GetInventoryByTechnicianIdQuery(technicianIdOpt.get());
         var inventory = inventoryQueryService.handle(query);
 
-        if (inventory.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
-
-        var inventoryResource = TechnicianInventoryResourceFromEntityAssembler.toResourceFromEntity(inventory.get());
-        return new ResponseEntity<>(inventoryResource, HttpStatus.CREATED);
+        return inventory
+                .map(inv -> new ResponseEntity<>(TechnicianInventoryResourceFromEntityAssembler.toResourceFromEntity(inv), HttpStatus.CREATED))
+                .orElse(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build());
     }
 
 
     @PostMapping("/technician/{technicianId}/stocks")
     public ResponseEntity<TechnicianInventoryResource> addComponentToStock(
-            @PathVariable UUID technicianId,
+            @PathVariable Long technicianId,
             @RequestBody @Valid AddComponentStockResource resource) {
 
         var command = AddComponentStockCommandFromResourceAssembler.toCommandFromResource(technicianId, resource);
@@ -105,8 +124,8 @@ public class TechnicianInventoryController {
 
     @PutMapping("/technician/{technicianId}/stocks/{componentId}")
     public ResponseEntity<TechnicianInventoryResource> updateComponentStock(
-            @PathVariable UUID technicianId,
-            @PathVariable UUID componentId,
+            @PathVariable Long technicianId,
+            @PathVariable Long componentId,
             @RequestBody @Valid UpdateComponentStockResource resource) {
 
         var command = UpdateComponentStockCommandFromResourceAssembler.toCommandFromResource(technicianId, componentId, resource);
@@ -119,8 +138,8 @@ public class TechnicianInventoryController {
 
     @DeleteMapping("/technician/{technicianId}/stocks/{componentId}")
     public ResponseEntity<Void> deleteComponentFromInventory(
-            @PathVariable UUID technicianId,
-            @PathVariable UUID componentId) {
+            @PathVariable Long technicianId,
+            @PathVariable Long componentId) {
 
         var command = new DeleteComponentStockCommand(technicianId, componentId);
         boolean result = inventoryCommandService.handle(command);

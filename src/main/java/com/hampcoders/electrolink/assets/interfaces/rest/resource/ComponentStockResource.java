@@ -5,7 +5,7 @@ import java.util.UUID;
 
 public record ComponentStockResource(
         UUID componentStockId,
-        UUID componentId,
+        Long componentId,
         String componentName,
         int quantityAvailable,
         int alertThreshold,

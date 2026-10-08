@@ -6,7 +6,7 @@ import jakarta.validation.constraints.NotNull;
 import java.util.UUID;
 
 public record AddComponentStockResource(
-        @NotNull UUID componentId,
+        @NotNull Long componentId,
         @Min(1) int quantity,
         @Min(0) int alertThreshold
 ) {}
